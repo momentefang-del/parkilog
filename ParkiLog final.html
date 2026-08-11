@@ -106,6 +106,18 @@ textarea:focus{outline:none;border-color:var(--pri);}
 .mdel{background:none;border:none;font-size:.9rem;cursor:pointer;opacity:.4;}
 .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--pri);color:#fff;padding:10px 20px;border-radius:6px;font-weight:600;font-size:.8rem;box-shadow:0 3px 12px rgba(0,0,0,.2);transition:transform .3s;z-index:999;}
 .toast.show{transform:translateX(-50%) translateY(0);}
+.editbtn{background:none;border:none;font-size:.8rem;cursor:pointer;opacity:.4;padding:0 4px;}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(26,35,50,.55);z-index:1000;align-items:flex-end;justify-content:center;}
+.modal-overlay.show{display:flex;}
+.modal-card{background:var(--card);width:100%;max-width:480px;border-radius:16px 16px 0 0;padding:20px 18px calc(20px + env(safe-area-inset-bottom));box-shadow:0 -4px 20px rgba(0,0,0,.15);}
+.modal-card h3{font-size:.95rem;color:var(--pri);margin-bottom:14px;font-weight:700;}
+.modal-row{display:flex;gap:10px;margin-bottom:16px;}
+.modal-row label{flex:1;display:flex;flex-direction:column;font-size:.68rem;color:var(--mut);font-weight:600;text-transform:uppercase;letter-spacing:.2px;gap:5px;}
+.modal-row input{font-family:inherit;font-size:.9rem;padding:9px 10px;border:1px solid var(--bdr);border-radius:8px;color:#1a2332;background:#fff;}
+.modal-actions{display:flex;gap:10px;}
+.modal-actions button{flex:1;padding:11px;border-radius:8px;border:none;font-family:inherit;font-weight:700;font-size:.85rem;cursor:pointer;}
+.modal-cancel{background:#eee;color:#555;}
+.modal-save{background:var(--pri);color:#fff;}
 .empty{text-align:center;padding:24px;color:var(--mut);font-size:.82rem;}
 .empty .ei2{font-size:1.6rem;margin-bottom:6px;opacity:.4;}
 .instnote{background:#eef2f6;color:var(--pri);padding:8px 14px;font-size:.7rem;text-align:center;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--bdr);}
@@ -297,6 +309,20 @@ label{font-size:.72rem;font-weight:600;color:var(--mut);text-transform:uppercase
     </div>
   </div>
   <div id="pdfContent" style="padding:20px;max-width:700px;margin:0 auto;color:#222;font-family:Arial,sans-serif;font-size:13px;"></div>
+</div>
+
+<div id="editModalOverlay" class="modal-overlay" onclick="if(event.target===this) closeEditModal();">
+  <div class="modal-card">
+    <h3>Datum &amp; Uhrzeit bearbeiten</h3>
+    <div class="modal-row">
+      <label>Datum <input type="date" id="editDateInput"></label>
+      <label>Uhrzeit <input type="time" id="editTimeInput"></label>
+    </div>
+    <div class="modal-actions">
+      <button class="modal-cancel" onclick="closeEditModal()">Abbrechen</button>
+      <button class="modal-save" onclick="saveEditModal()">Speichern</button>
+    </div>
+  </div>
 </div>
 
 <style>
@@ -572,16 +598,17 @@ function renderVerlauf() {
   const list = document.getElementById('verlaufList');
   if (dayEntries.length === 0) { list.innerHTML = '<div class="empty"><div class="ei2">-</div>Keine Eintraege an diesem Tag</div>'; return; }
   list.innerHTML = dayEntries.map(function(e) {
-    if (e.kind === 'phase') return '<div class="ei ' + (e.type==='schlaf'?'esl':'ewk') + '"><div class="em"><span>' + e.time + ' Uhr</span><button class="delbtn" onclick="deleteEntry(' + e.id + ')">&times;</button></div><div class="et">' + (e.type==='schlaf'?'Schlaf begonnen':'Aufgewacht') + '</div></div>';
-    if (e.kind === 'onoff') return '<div class="ei ' + (e.status==='on'?'eon':'eof') + '"><div class="em"><span>' + e.time + ' Uhr</span><button class="delbtn" onclick="deleteEntry(' + e.id + ')">&times;</button></div><div class="et">' + (e.status==='on'?'ON-Phase':'OFF-Phase') + '</div></div>';
+    const editBtn = '<button class="editbtn" onclick="openEditModal(' + e.id + ')" title="Datum/Uhrzeit bearbeiten">&#9998;</button>';
+    if (e.kind === 'phase') return '<div class="ei ' + (e.type==='schlaf'?'esl':'ewk') + '"><div class="em"><span>' + e.time + ' Uhr</span><span>' + editBtn + '<button class="delbtn" onclick="deleteEntry(' + e.id + ')">&times;</button></span></div><div class="et">' + (e.type==='schlaf'?'Schlaf begonnen':'Aufgewacht') + '</div></div>';
+    if (e.kind === 'onoff') return '<div class="ei ' + (e.status==='on'?'eon':'eof') + '"><div class="em"><span>' + e.time + ' Uhr</span><span>' + editBtn + '<button class="delbtn" onclick="deleteEntry(' + e.id + ')">&times;</button></span></div><div class="et">' + (e.status==='on'?'ON-Phase':'OFF-Phase') + '</div></div>';
     if (e.kind === 'symptom') {
       const symList = Object.entries(e.symptoms).map(function(pair) {
         return '<span class="badge" style="background:#f5eeee;border-color:#dcc5c5;color:#8b3a3a;">' + pair[0] + ' (' + pair[1] + ')</span>';
       }).join('');
-      return '<div class="ei esy"><div class="em"><span>' + e.time + ' Uhr - ' + (e.tageszeit==='tag'?'Tag':'Nacht') + '</span><button class="delbtn" onclick="deleteEntry(' + e.id + ')">&times;</button></div><div style="margin-top:4px;">' + symList + '</div>' + (e.note ? '<div class="en">' + e.note + '</div>' : '') + '</div>';
+      return '<div class="ei esy"><div class="em"><span>' + e.time + ' Uhr - ' + (e.tageszeit==='tag'?'Tag':'Nacht') + '</span><span>' + editBtn + '<button class="delbtn" onclick="deleteEntry(' + e.id + ')">&times;</button></span></div><div style="margin-top:4px;">' + symList + '</div>' + (e.note ? '<div class="en">' + e.note + '</div>' : '') + '</div>';
     }
-    if (e.kind === 'medication') return '<div class="ei emed"><div class="em"><span>' + e.time + ' Uhr</span><button class="delbtn" onclick="deleteEntry(' + e.id + ')">&times;</button></div><div class="et">' + e.medName + ' - ' + e.medDose + '</div></div>';
-    if (e.kind === 'note') return '<div class="ei" style="border-left-color:#5a3a6b;"><div class="em"><span>' + e.time + ' Uhr</span><button class="delbtn" onclick="deleteEntry(' + e.id + ')">&times;</button></div><div class="et">' + e.text + '</div></div>';
+    if (e.kind === 'medication') return '<div class="ei emed"><div class="em"><span>' + e.time + ' Uhr</span><span>' + editBtn + '<button class="delbtn" onclick="deleteEntry(' + e.id + ')">&times;</button></span></div><div class="et">' + e.medName + ' - ' + e.medDose + '</div></div>';
+    if (e.kind === 'note') return '<div class="ei" style="border-left-color:#5a3a6b;"><div class="em"><span>' + e.time + ' Uhr</span><span>' + editBtn + '<button class="delbtn" onclick="deleteEntry(' + e.id + ')">&times;</button></span></div><div class="et">' + e.text + '</div></div>';
     return '';
   }).join('');
 }
@@ -590,6 +617,39 @@ function deleteEntry(id) {
   if (!confirm('Eintrag loeschen?')) return;
   DATA.entries = DATA.entries.filter(function(e) { return e.id !== id; });
   saveData(); renderVerlauf(); renderToday();
+}
+
+let editingEntryId = null;
+
+function openEditModal(id) {
+  const entry = DATA.entries.find(function(e) { return e.id === id; });
+  if (!entry) return;
+  editingEntryId = id;
+  document.getElementById('editDateInput').value = entry.date;
+  document.getElementById('editTimeInput').value = entry.time;
+  document.getElementById('editModalOverlay').classList.add('show');
+}
+
+function closeEditModal() {
+  document.getElementById('editModalOverlay').classList.remove('show');
+  editingEntryId = null;
+}
+
+function saveEditModal() {
+  if (editingEntryId === null) return;
+  const newDate = document.getElementById('editDateInput').value;
+  const newTime = document.getElementById('editTimeInput').value;
+  if (!newDate || !newTime) { showToast('Bitte Datum und Uhrzeit angeben'); return; }
+  const entry = DATA.entries.find(function(e) { return e.id === editingEntryId; });
+  if (entry) {
+    entry.date = newDate;
+    entry.time = newTime;
+    saveData();
+    renderVerlauf();
+    renderToday();
+    showToast('Eintrag aktualisiert');
+  }
+  closeEditModal();
 }
 
 document.getElementById('verlaufDate').addEventListener('change', renderVerlauf);
