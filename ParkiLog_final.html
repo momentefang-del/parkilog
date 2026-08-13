@@ -121,6 +121,25 @@ textarea:focus{outline:none;border-color:var(--pri);}
 .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--pri);color:#fff;padding:10px 20px;border-radius:6px;font-weight:600;font-size:.8rem;box-shadow:0 3px 12px rgba(0,0,0,.2);transition:transform .3s;z-index:999;}
 .toast.show{transform:translateX(-50%) translateY(0);}
 .editbtn{background:none;border:none;font-size:.8rem;cursor:pointer;opacity:.4;padding:0 4px;}
+.linklist{display:flex;flex-direction:column;gap:8px;}
+.linkcard{display:flex;flex-direction:column;gap:2px;padding:11px 13px;border:1px solid var(--bdr);border-radius:10px;text-decoration:none;background:#f9fafb;transition:background .15s;}
+.linkcard:active{background:#eef1f4;}
+.lc-t{font-size:.85rem;font-weight:700;color:var(--pri);}
+.lc-d{font-size:.72rem;color:var(--mut);}
+.pmitem{padding:10px 0;border-bottom:1px solid var(--bdr);}
+.pmitem:last-child{border-bottom:none;}
+.pmitem a{color:var(--pri);text-decoration:none;font-size:.83rem;font-weight:700;line-height:1.35;}
+.pmitem a:active{text-decoration:underline;}
+.pmmeta{font-size:.7rem;color:var(--mut);margin-top:3px;}
+.tipcat{border:1px solid var(--bdr);border-radius:10px;margin-bottom:8px;overflow:hidden;background:#f9fafb;}
+.tipcat summary{padding:11px 13px;font-weight:700;font-size:.83rem;color:var(--pri);cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between;}
+.tipcat summary::-webkit-details-marker{display:none;}
+.tipcat summary::after{content:'+';font-size:1.1rem;font-weight:400;color:var(--mut);}
+.tipcat[open] summary::after{content:'\2212';}
+.tipcat[open] summary{border-bottom:1px solid var(--bdr);}
+.tipcat ul{list-style:none;padding:10px 13px 12px;margin:0;display:flex;flex-direction:column;gap:9px;}
+.tipcat li{font-size:.8rem;line-height:1.45;color:#334155;padding-left:14px;position:relative;}
+.tipcat li::before{content:'';position:absolute;left:0;top:.5em;width:5px;height:5px;border-radius:50%;background:var(--wk);}
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(26,35,50,.55);z-index:1000;align-items:flex-end;justify-content:center;}
 .modal-overlay.show{display:flex;}
 .modal-card{background:var(--card);width:100%;max-width:480px;border-radius:16px 16px 0 0;padding:20px 18px calc(20px + env(safe-area-inset-bottom));box-shadow:0 -4px 20px rgba(0,0,0,.15);}
@@ -164,6 +183,7 @@ label{font-size:.72rem;font-weight:600;color:var(--mut);text-transform:uppercase
   <button class="tb" onclick="goTab('notiz',this)"><span class="ic">&#9998;</span>Notiz</button>
   <button class="tb" onclick="goTab('verlauf',this)"><span class="ic">&#8801;</span>Verlauf</button>
   <button class="tb" onclick="goTab('statistik',this)"><span class="ic">&#9638;</span>Statistik</button>
+  <button class="tb" onclick="goTab('info',this)"><span class="ic">&#8505;</span>Info</button>
 </div>
 
 <main>
@@ -308,6 +328,92 @@ label{font-size:.72rem;font-weight:600;color:var(--mut);text-transform:uppercase
   <div class="card">
     <button class="ex" onclick="exportPDF()">PDF exportieren (fuer Arzt / Reha)</button>
   </div>
+</div>
+
+<div id="pg-info" class="pg">
+  <div class="cw">
+    <div class="ctit">Vertrauenswuerdige Quellen</div>
+    <div class="linklist">
+      <a class="linkcard" href="https://www.parkinson-vereinigung.de" target="_blank" rel="noopener">
+        <span class="lc-t">Deutsche Parkinson Vereinigung</span>
+        <span class="lc-d">Patienteninfos, Beratung, Regionalgruppen</span>
+      </a>
+      <a class="linkcard" href="https://www.parkinson-gesellschaft.de" target="_blank" rel="noopener">
+        <span class="lc-t">Deutsche Gesellschaft fuer Parkinson und Bewegungsstoerungen</span>
+        <span class="lc-d">Aktuelle Leitlinien und Fachinformationen</span>
+      </a>
+      <a class="linkcard" href="https://www.michaeljfox.org" target="_blank" rel="noopener">
+        <span class="lc-t">Michael J. Fox Foundation</span>
+        <span class="lc-d">Forschungsnews, internationale Studien (Englisch)</span>
+      </a>
+      <a class="linkcard" href="https://www.parkinsonseurope.org" target="_blank" rel="noopener">
+        <span class="lc-t">Parkinson's Europe</span>
+        <span class="lc-d">Europaweite Infos und Erfahrungsberichte</span>
+      </a>
+      <a class="linkcard" href="https://pubmed.ncbi.nlm.nih.gov/?term=parkinson+disease&sort=date" target="_blank" rel="noopener">
+        <span class="lc-t">PubMed Studiensuche</span>
+        <span class="lc-d">Alle wissenschaftlichen Studien, selbst durchsuchbar</span>
+      </a>
+    </div>
+  </div>
+
+  <div class="cw">
+    <div class="ctit">Tipps &amp; Tricks fuer den Alltag</div>
+    <div class="hd" style="text-align:left;margin-bottom:10px;">Allgemeine Hinweise - ersetzen keine aerztliche oder therapeutische Beratung</div>
+
+    <details class="tipcat">
+      <summary>Bewegung &amp; Uebungen</summary>
+      <ul>
+        <li>Taeglich moeglichst viel und mit grossen, bewussten Bewegungen (z.B. grosse Schritte, weite Armbewegungen) - kleine, "schleifende" Bewegungen eher vermeiden.</li>
+        <li>Regelmaessiges Training wirkt sich nachweislich positiv aus: z.B. zuegiges Gehen, Radfahren, Tanzen, Tai-Chi oder Boxtraining fuer Parkinson-Patienten.</li>
+        <li>Bei "Freezing" (Blockaden beim Gehen): laut mitzaehlen, im Rhythmus gehen, oder ueber eine gedachte/echte Linie am Boden steigen - das hilft oft, den ersten Schritt zu loesen.</li>
+        <li>Gleichgewichts- und Krafttraining reduziert das Sturzrisiko - idealerweise unter physiotherapeutischer Anleitung.</li>
+        <li>Kurze Bewegungspausen ueber den Tag verteilt sind oft wirksamer als eine einzelne lange Einheit.</li>
+      </ul>
+    </details>
+
+    <details class="tipcat">
+      <summary>Ernaehrung</summary>
+      <ul>
+        <li>Ausreichend trinken und ballaststoffreich essen (Vollkorn, Gemuese, Obst) hilft gegen die bei Parkinson haeufige Verstopfung.</li>
+        <li>Manche Medikamente (z.B. Levodopa) wirken besser, wenn sie mit zeitlichem Abstand zu sehr eiweissreichen Mahlzeiten eingenommen werden - die genaue Abstimmung dazu bitte mit Arzt oder Neurologe besprechen, das ist individuell verschieden.</li>
+        <li>Regelmaessige, kleinere Mahlzeiten koennen Blutzucker und Energielevel stabiler halten.</li>
+        <li>Bei Schluckproblemen: aufrecht sitzen beim Essen, kleine Bissen, ausreichend Zeit lassen - im Zweifel logopaedische Beratung in Anspruch nehmen.</li>
+      </ul>
+    </details>
+
+    <details class="tipcat">
+      <summary>Schlaf</summary>
+      <ul>
+        <li>Feste Schlafenszeiten und eine ruhige Abendroutine unterstuetzen den Schlaf-Wach-Rhythmus.</li>
+        <li>Glatte, rutschige Bettwaesche (z.B. Satin) erleichtert das Umdrehen im Bett bei naechtlicher Steifigkeit.</li>
+        <li>Abends grosse Trinkmengen vermeiden, um naechtliches Wasserlassen zu reduzieren.</li>
+        <li>Morgens moeglichst Tageslicht/helles Licht - das kann den Wach-Rhythmus stabilisieren.</li>
+        <li>Bildschirme (Handy, TV) moeglichst eine Stunde vor dem Schlafengehen meiden.</li>
+      </ul>
+    </details>
+
+    <details class="tipcat">
+      <summary>Sprache &amp; Stimme</summary>
+      <ul>
+        <li>Taeglich bewusst laut und deutlich sprechen oder vorlesen - trainiert die Stimme (aehnlich dem Prinzip des LSVT LOUD-Programms).</li>
+        <li>Vor wichtigen Gespraechen ein paar Mal tief einatmen und bewusst lauter starten als gewohnt erscheint.</li>
+        <li>Bei anhaltenden Sprech- oder Schluckproblemen: eine logopaedische Therapie kann gezielt helfen.</li>
+      </ul>
+    </details>
+
+    <details class="tipcat">
+      <summary>Alltag &amp; Sicherheit zuhause</summary>
+      <ul>
+        <li>Lose Teppiche, Kabel und Stolperfallen aus den Laufwegen entfernen.</li>
+        <li>Haltegriffe im Bad und ausreichende Beleuchtung (auch nachts, z.B. Nachtlicht) reduzieren Sturzrisiko.</li>
+        <li>Griffverdickte Stifte und Besteck erleichtern Aufgaben bei Zittern oder Steifigkeit.</li>
+        <li>Kleidung mit Klettverschluss oder elastischem Bund statt kleiner Knoepfe spart Kraft und Nerven.</li>
+        <li>Genug Zeit einplanen und Aufgaben wenn moeglich in Ruhe statt unter Zeitdruck erledigen.</li>
+      </ul>
+    </details>
+  </div>
+
 </div>
 
 </main>
@@ -459,7 +565,7 @@ function goTab(name, btn) {
   if (name === 'symptome') renderSymptomList();
   if (name === 'medikamente') { renderQuickMeds(); renderMedList(); }
   if (name === 'verlauf') { document.getElementById('verlaufDate').value = todayStr(); renderVerlauf(); }
-  if (name === 'statistik') renderStatistik();
+  if (name === 'statistik') requestAnimationFrame(function() { requestAnimationFrame(renderStatistik); });
 }
 
 function logPhase(type) {
